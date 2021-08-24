@@ -51,7 +51,7 @@ router.get('/:productId', async (req, res) => {
 router.delete('/:productId', (req, res) => {
   const { productId: id } = req.params;
 
-  Products.findByIdAndUpdate({ _id: id }, req.body)
+  Products.findByIdAndDelete(id)
     .then((deleted) => {
       res.status(204).json({ message: 'Silme işlemi başarılı.' });
     })
