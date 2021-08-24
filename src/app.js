@@ -76,6 +76,7 @@ app.get('/update', function (req, res) {
 });
 
 // Listen on port 8080
-const listener = app.listen(8080, () => {
+const port = process.env.PORT || 8080;
+const listener = app.listen(port, () => {
   console.log('http://localhost:' + listener.address().port);
 });
