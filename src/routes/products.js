@@ -22,6 +22,9 @@ router.post('/', (req, res, next) => {
     title: newProduct.title,
     description: newProduct.description,
     price: newProduct.price,
+    image: newProduct.image,
+    color: newProduct.color,
+    category: newProduct.category,
   });
 
   product
