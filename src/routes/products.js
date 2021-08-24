@@ -4,14 +4,27 @@ const Products = require('../models/products');
 const router = express.Router();
 
 // GET REQUEST
-router.get('/', (req, res) => {
-  Products.find()
-    .then((product) => {
+router.get('/', async (req, res) => {
+  const { productId } = req.query;
+
+  if (productId) {
+    try {
+      const product = await Products.findById(productId);
       res.status(200).json(product);
-    })
-    .catch((error) => {
-      res.status(500).json({ message: error.message });
-    });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: `${error.value} numaralı ürün bulunamadı` });
+    }
+  } else {
+    Products.find()
+      .then((product) => {
+        res.status(200).json(product);
+      })
+      .catch((error) => {
+        res.status(500).json({ message: error.message });
+      });
+  }
 });
 
 // POST REQUEST
@@ -36,7 +49,7 @@ router.post('/', (req, res, next) => {
 });
 
 // GET REQUEST BY ID
-router.get('/:productId', async (req, res) => {
+router.get('/?productId', async (req, res) => {
   try {
     const product = await Products.findById(req.params.productId);
     res.status(200).json(product);
@@ -48,33 +61,46 @@ router.get('/:productId', async (req, res) => {
 });
 
 // DELETE REQUEST BY ID
-router.delete('/:productId', (req, res) => {
-  const { productId: id } = req.params;
-
-  Products.findByIdAndDelete(id)
-    .then((deleted) => {
-      res.status(204).json({ message: 'Silme işlemi başarılı.' });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: error.message });
-    });
+router.delete('/', (req, res) => {
+  const { productId } = req.query;
+  if (productId) {
+    Products.findByIdAndDelete(productId)
+      .then((deleted) => {
+        res.status(204).json({ message: 'Silme işlemi başarılı.' });
+      })
+      .catch((error) => {
+        res.status(500).json({ message: error.message });
+      });
+  } else {
+    res
+      .status(404)
+      .json({ message: "Ürün id'si olmadan silme işlemi yapılamaz." });
+  }
 });
 
 // PATCH REQUEST
-router.patch('/:productId', async (req, res) => {
-  try {
-    const updateObject = req.body;
-    const updatedProduct = await Products.updateOne(
-      { _id: req.params.productId },
-      {
-        $set: updateObject,
-      }
-    );
-    res.status(200).json(updatedProduct);
-  } catch (error) {
+router.patch('/', async (req, res) => {
+  const { productId } = req.query;
+
+  if (productId) {
+    try {
+      const updateObject = req.body;
+      const updatedProduct = await Products.updateOne(
+        { _id: productId },
+        {
+          $set: updateObject,
+        }
+      );
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: `${error.value} numaralı ürün güncellenemedi` });
+    }
+  } else {
     res
-      .status(500)
-      .json({ message: `${error.value} numaralı ürün güncellenemedi` });
+      .status(404)
+      .json({ message: "Ürün id'si olmadan düzenleme  işlemi yapılamaz." });
   }
 });
 
